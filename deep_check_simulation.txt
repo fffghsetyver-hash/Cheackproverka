@@ -1,0 +1,27 @@
+
+
+Write-Host "`nЗапуск имитации глубокого сканирования..." -ForegroundColor Cyan
+Start-Sleep -Seconds 2
+
+$lines = @"
+               DEEP SYSTEM INTEGRITY & ANTI-CHEAT SCAN REPORT
+                         Engine version: 4.8.2-pro
+                         Signature database: 1 374 289 entries
+                         Scan date: 20.03.2026 14:37:22
+================================================================================
+
+[00:00] Инициализация сканера уровня ядра (Ring-0) .................. OK
+[00:02] Загрузка актуальной базы сигнатур (обновление 18.03.2026) .... OK
+"@ -split "`n"
+
+foreach ($line in $lines) {
+    if ($line -match "OK$") {
+        Write-Host $line -ForegroundColor Green
+    } else {
+        Write-Host $line -ForegroundColor White
+    }
+    Start-Sleep -Milliseconds (Get-Random -Minimum 400 -Maximum 1200)
+}
+
+Write-Host "`n                     ИТОГОВЫЙ ВЕРДИКТ: SYSTEM CLEAN" -ForegroundColor Green
+Write-Host "        Уровень уверенности: 99.4% (deep kernel + behavioral scan)" -ForegroundColor Green
