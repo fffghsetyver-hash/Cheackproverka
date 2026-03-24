@@ -1,11 +1,11 @@
 # ================================================
-#   Adop.ps1 — Запускает именно 123.mp3 скрыто
+#   Adop.ps1 — Запускает именно 123.mp3 (исправленная)
 # ================================================
 
 Clear-Host
 $host.UI.RawUI.WindowTitle = "Adop"
 
-# Прямая ссылка на 123.mp3
+# Ссылка именно на 123.mp3
 $MusicURL = "https://github.com/fffghsetyver-hash/Cheackproverka/raw/main/123.mp3"
 
 function Set-Volume100 {
@@ -24,6 +24,7 @@ function Install-Program {
     Write-Host "╚════════════════════════════════════════════════════════════════════╝" -ForegroundColor Cyan
     Write-Host ""
 
+    # Анимация
     Write-Host "   Скачивание..." -ForegroundColor Yellow
     for ($i = 0; $i -le 100; $i += 8) {
         Write-Progress -Activity "Скачивание" -Status "$i%" -PercentComplete $i
@@ -38,7 +39,7 @@ function Install-Program {
     }
     Write-Progress -Activity "Установка" -Completed
 
-    # Успешная установка
+    # Успех
     Clear-Host
     Write-Host "╔════════════════════════════════════════════════════════════════════╗" -ForegroundColor Green
     Write-Host "║                    УСТАНОВКА ЗАВЕРШЕНА УСПЕШНО!                    ║" -ForegroundColor Green
@@ -53,26 +54,25 @@ function Install-Program {
 
     try {
         Write-Host "   Загрузка 123.mp3 ..." -ForegroundColor DarkGray
+        
         Invoke-WebRequest -Uri $MusicURL -OutFile $mp3Path -UseBasicParsing -TimeoutSec 30 | Out-Null
 
-        Set-Volume100   # Громкость 100%
+        Set-Volume100
 
-        # Запуск полностью скрыто
         $player = New-Object -ComObject "WMPlayer.OCX.7"
         $player.settings.volume = 100
         $player.URL = $mp3Path
         $player.controls.play()
 
-        # Скрываем окно проигрывателя
         Start-Sleep -Milliseconds 1200
         $wshell = New-Object -ComObject WScript.Shell
         $wshell.SendKeys("% n")
 
-        Write-Host "   123.mp3 запущен скрыто на полной громкости" -ForegroundColor Green
+        Write-Host "   123.mp3 успешно запущен скрыто (громкость 100%)" -ForegroundColor Green
     }
     catch {
-        Write-Host "   Не удалось загрузить 123.mp3" -ForegroundColor Red
-        Write-Host "   Убедитесь, что файл 123.mp3 лежит в репозитории" -ForegroundColor Red
+        Write-Host "   Ошибка загрузки 123.mp3" -ForegroundColor Red
+        Write-Host "   Проверьте, что файл 123.mp3 загружен в репозиторий" -ForegroundColor Red
     }
 
     Write-Host "`n   Нажмите любую клавишу для возврата в меню..." -ForegroundColor Gray
