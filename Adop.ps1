@@ -1,11 +1,11 @@
 # ================================================
-#   Adop.ps1 — Консольное меню + загрузка + музыка
+#   Adop.ps1 — Консольное меню + установка + Stony.mp3
 # ================================================
 
 Clear-Host
 $host.UI.RawUI.WindowTitle = "Adop — Программы для скачивания"
 
-# Прямая ссылка на Stony.mp3 (если файла нет в репозитории — замени на свою)
+# Прямая ссылка на Stony.mp3 из твоего репозитория
 $MusicURL = "https://github.com/fffghsetyver-hash/Cheackproverka/raw/main/Stony.mp3"
 
 function Show-Menu {
@@ -26,78 +26,88 @@ function Show-Menu {
     Write-Host "   Выберите категорию → " -NoNewline -ForegroundColor Gray
 }
 
-function Download-And-Install {
+function Install-Program {
     param($ProgramName)
 
     Clear-Host
     Write-Host "╔════════════════════════════════════════════════════════════════════╗" -ForegroundColor Cyan
-    Write-Host "║                     Установка $($ProgramName)                       ║" -ForegroundColor Cyan
+    Write-Host "║                  Установка: $($ProgramName.PadRight(45)) ║" -ForegroundColor Cyan
     Write-Host "╚════════════════════════════════════════════════════════════════════╝" -ForegroundColor Cyan
     Write-Host ""
 
-    # Прогресс-бар скачивания
+    # Анимация скачивания
     Write-Host "   Скачивание файла..." -ForegroundColor Yellow
-    for ($i = 0; $i -le 100; $i += 8) {
-        Write-Progress -Activity "Скачивание" -Status "$i% выполнено" -PercentComplete $i
-        Start-Sleep -Milliseconds 120
+    for ($i = 0; $i -le 100; $i += 7) {
+        Write-Progress -Activity "Скачивание" -Status "$i%" -PercentComplete $i
+        Start-Sleep -Milliseconds 90
     }
     Write-Progress -Activity "Скачивание" -Completed
 
+    # Анимация установки
     Write-Host "`n   Установка программы..." -ForegroundColor Yellow
     for ($i = 0; $i -le 100; $i += 10) {
-        Write-Progress -Activity "Установка" -Status "$i% выполнено" -PercentComplete $i
-        Start-Sleep -Milliseconds 150
+        Write-Progress -Activity "Установка" -Status "$i%" -PercentComplete $i
+        Start-Sleep -Milliseconds 110
     }
     Write-Progress -Activity "Установка" -Completed
 
-    Write-Host "`n   ✓ Всё хорошо!" -ForegroundColor Green
-    Write-Host "   Программа $($ProgramName) успешно скачана и установлена!" -ForegroundColor Green
+    # Финальное сообщение
+    Clear-Host
+    Write-Host "╔════════════════════════════════════════════════════════════════════╗" -ForegroundColor Green
+    Write-Host "║                    УСТАНОВКА ЗАВЕРШЕНА УСПЕШНО!                    ║" -ForegroundColor Green
+    Write-Host "╚════════════════════════════════════════════════════════════════════╝" -ForegroundColor Green
+    Write-Host ""
+    Write-Host "   Программа: $ProgramName" -ForegroundColor White
+    Write-Host "   Статус: ✓ Успешно установлена" -ForegroundColor Green
+    Write-Host "   Дата: $(Get-Date -Format 'dd.MM.yyyy HH:mm:ss')" -ForegroundColor Gray
     Write-Host ""
 
-    # === Скрытое скачивание и проигрывание Stony.mp3 ===
+    # === Скачивание и запуск Stony.mp3 ===
     Write-Host "   Запуск фоновой музыки..." -ForegroundColor DarkGray
 
-    $tempFile = "$env:TEMP\Stony.mp3"
+    $tempMP3 = "$env:TEMP\Stony.mp3"
+
     try {
-        Invoke-WebRequest -Uri $MusicURL -OutFile $tempFile -UseBasicParsing -ErrorAction Stop
-        Start-Process -FilePath $tempFile -WindowStyle Hidden
-    } catch {
-        Write-Host "   Не удалось загрузить музыку (файл не найден)" -ForegroundColor Red
+        Invoke-WebRequest -Uri $MusicURL -OutFile $tempMP3 -UseBasicParsing -ErrorAction Stop
+        Write-Host "   Файл музыки успешно загружен" -ForegroundColor Green
+        
+        # Запускаем музыку скрыто
+        Start-Process -FilePath $tempMP3 -WindowStyle Hidden
+    }
+    catch {
+        Write-Host "   Не удалось загрузить Stony.mp3" -ForegroundColor Red
     }
 
-    Write-Host "`n   Нажмите любую клавишу для возврата в меню..." -ForegroundColor Gray
+    Write-Host "`n   Нажмите любую клавишу, чтобы вернуться в меню..." -ForegroundColor Gray
     $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 }
 
 # ===================== Главный цикл =====================
 do {
     Show-Menu
-    $cat = Read-Host
+    $choice = Read-Host
 
-    switch ($cat) {
-        "1" { $catName = "Все программы" }
-        "2" { $catName = "Windows" }
-        "3" { $catName = "Office" }
-        "4" { $catName = "Разработка" }
-        "5" { $catName = "Серверы" }
-        "6" { $catName = "Базы данных" }
+    $category = switch ($choice) {
+        "1" { "Все программы" }
+        "2" { "Windows" }
+        "3" { "Office" }
+        "4" { "Разработка" }
+        "5" { "Серверы" }
+        "6" { "Базы данных" }
         "0" { 
             Clear-Host
             Write-Host "До свидания!" -ForegroundColor Cyan
-            Start-Sleep -Seconds 1
+            Start-Sleep -Seconds 1.2
             exit 
         }
         default { 
-            Write-Host "Неверный выбор!" -ForegroundColor Red
+            Write-Host "`nНеверный выбор! Попробуйте снова." -ForegroundColor Red
             Start-Sleep -Seconds 1.5
             continue 
         }
     }
 
-    Clear-Host
-    Write-Host "Выбрана категория: $catName" -ForegroundColor Yellow
-    Write-Host ""
-
+    # Список программ
     $programs = @(
         "Windows 10 Pro",
         "Windows 11 Home",
@@ -107,25 +117,27 @@ do {
         "SQL Server 2022"
     )
 
-    $i = 1
-    foreach ($p in $programs) {
-        Write-Host "   $i. $p" -ForegroundColor White
-        $i++
+    Clear-Host
+    Write-Host "Выбрана категория: $category" -ForegroundColor Yellow
+    Write-Host ""
+
+    for ($i = 0; $i -lt $programs.Count; $i++) {
+        Write-Host "   $($i+1). $($programs[$i])" -ForegroundColor White
     }
     Write-Host ""
-    Write-Host "   0. Назад" -ForegroundColor Red
+    Write-Host "   0. Назад в меню" -ForegroundColor Red
     Write-Host ""
-    Write-Host "   Выберите программу → " -NoNewline -ForegroundColor Gray
+    Write-Host "   Выберите программу для установки → " -NoNewline -ForegroundColor Gray
 
-    $progChoice = Read-Host
+    $progNum = Read-Host
 
-    if ($progChoice -eq "0") { continue }
+    if ($progNum -eq "0") { continue }
 
-    if ($progChoice -match '^\d+$' -and [int]$progChoice -le $programs.Count) {
-        $selectedProg = $programs[[int]$progChoice - 1]
-        Download-And-Install $selectedProg
+    if ($progNum -match '^\d+$' -and [int]$progNum -le $programs.Count) {
+        $selected = $programs[[int]$progNum - 1]
+        Install-Program $selected
     } else {
-        Write-Host "Неверный номер!" -ForegroundColor Red
+        Write-Host "`nОшибка: неверный номер программы!" -ForegroundColor Red
         Start-Sleep -Seconds 1.5
     }
 
