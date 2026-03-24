@@ -1,457 +1,304 @@
-# ============================================
-# Microsoft License Activator
-# Визуальная активация лицензий Windows
-# Стиль Microsoft Office
-# ============================================
+# ================================================
+#   Активация лицензий Microsoft — Визуальный инструмент
+#   Стиль: Microsoft Fluent Design
+#   Автор: Grok (по твоему запросу)
+#   Работает на PowerShell 5.0+
+# ================================================
 
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
-Add-Type -AssemblyName System.Drawing.Drawing2D
 
-# Отключаем вывод ошибок для чистоты интерфейса
-$ErrorActionPreference = "SilentlyContinue"
+# ===================== НАСТРОЙКИ =====================
+$WindowWidth = 950
+$WindowHeight = 700
+$MainColor = [System.Drawing.Color]::FromArgb(43, 87, 151)   # #2B5797
+$AccentColor = [System.Drawing.Color]::FromArgb(0, 120, 212)
 
-# Создаем главную форму
+# ===================== ФОРМА =====================
 $form = New-Object System.Windows.Forms.Form
-$form.Text = "Microsoft License Activator"
-$form.Size = New-Object System.Drawing.Size(950, 700)
+$form.Text = "Активация лицензий Microsoft"
+$form.Size = New-Object System.Drawing.Size($WindowWidth, $WindowHeight)
 $form.StartPosition = "CenterScreen"
 $form.FormBorderStyle = "None"
-$form.BackColor = [System.Drawing.Color]::FromArgb(248, 249, 250)
-$form.TopMost = $true
+$form.BackColor = [System.Drawing.Color]::FromArgb(30, 30, 30)
+$form.ForeColor = [System.Drawing.Color]::White
+$form.Font = New-Object System.Drawing.Font("Segoe UI", 10)
 
-# Функция для скругления углов
-function Set-RoundedCorners {
-    param($form, $radius = 20)
-    $path = New-Object System.Drawing.Drawing2D.GraphicsPath
-    $path.AddArc(0, 0, $radius, $radius, 180, 90)
-    $path.AddArc($form.Width - $radius, 0, $radius, $radius, -90, 90)
-    $path.AddArc($form.Width - $radius, $form.Height - $radius, $radius, $radius, 0, 90)
-    $path.AddArc(0, $form.Height - $radius, $radius, $radius, 90, 90)
-    $path.CloseFigure()
-    $form.Region = New-Object System.Drawing.Region($path)
-}
+# Скругление углов окна
+$gp = New-Object System.Drawing.Drawing2D.GraphicsPath
+$radius = 16
+$gp.AddArc(0, 0, $radius*2, $radius*2, 180, 90)
+$gp.AddArc($WindowWidth-$radius*2, 0, $radius*2, $radius*2, 270, 90)
+$gp.AddArc($WindowWidth-$radius*2, $WindowHeight-$radius*2, $radius*2, $radius*2, 0, 90)
+$gp.AddArc(0, $WindowHeight-$radius*2, $radius*2, $radius*2, 90, 90)
+$form.Region = New-Object System.Drawing.Region($gp)
 
-# Создаем заголовок
-$titlePanel = New-Object System.Windows.Forms.Panel
-$titlePanel.Size = New-Object System.Drawing.Size(950, 80)
-$titlePanel.Location = New-Object System.Drawing.Point(0, 0)
-$titlePanel.BackColor = [System.Drawing.Color]::FromArgb(43, 87, 151)
-$titlePanel.BackgroundImageLayout = "Stretch"
-$form.Controls.Add($titlePanel)
+# ===================== ЗАГОЛОВОК =====================
+$titleBar = New-Object System.Windows.Forms.Panel
+$titleBar.Height = 50
+$titleBar.Dock = "Top"
+$titleBar.BackColor = $MainColor
+
+$titleLabel = New-Object System.Windows.Forms.Label
+$titleLabel.Text = "Активация лицензий Microsoft"
+$titleLabel.ForeColor = "White"
+$titleLabel.Font = New-Object System.Drawing.Font("Segoe UI Semibold", 14)
+$titleLabel.AutoSize = $true
+$titleLabel.Location = New-Object System.Drawing.Point(20, 12)
+$titleBar.Controls.Add($titleLabel)
 
 # Кнопка закрытия
 $closeBtn = New-Object System.Windows.Forms.Button
-$closeBtn.Size = New-Object System.Drawing.Size(35, 35)
-$closeBtn.Location = New-Object System.Drawing.Point(900, 22)
+$closeBtn.Text = "✕"
+$closeBtn.Size = New-Object System.Drawing.Size(40, 40)
+$closeBtn.Location = New-Object System.Drawing.Point($WindowWidth-50, 5)
 $closeBtn.FlatStyle = "Flat"
 $closeBtn.FlatAppearance.BorderSize = 0
-$closeBtn.BackColor = [System.Drawing.Color]::Transparent
-$closeBtn.ForeColor = [System.Drawing.Color]::White
-$closeBtn.Font = New-Object System.Drawing.Font("Segoe UI", 16, [System.Drawing.FontStyle]::Bold)
-$closeBtn.Text = "✕"
-$closeBtn.Cursor = [System.Windows.Forms.Cursors]::Hand
+$closeBtn.ForeColor = "White"
+$closeBtn.BackColor = $MainColor
+$closeBtn.Font = New-Object System.Drawing.Font("Segoe UI", 14)
+$closeBtn.Add_MouseEnter({ $closeBtn.BackColor = [System.Drawing.Color]::FromArgb(232, 17, 35) })
+$closeBtn.Add_MouseLeave({ $closeBtn.BackColor = $MainColor })
 $closeBtn.Add_Click({ $form.Close() })
-$titlePanel.Controls.Add($closeBtn)
+$titleBar.Controls.Add($closeBtn)
 
-# Заголовок
-$titleLabel = New-Object System.Windows.Forms.Label
-$titleLabel.Text = "Активация лицензий Microsoft"
-$titleLabel.Size = New-Object System.Drawing.Size(400, 40)
-$titleLabel.Location = New-Object System.Drawing.Point(30, 25)
-$titleLabel.Font = New-Object System.Drawing.Font("Segoe UI", 18, [System.Drawing.FontStyle]::Bold)
-$titleLabel.ForeColor = [System.Drawing.Color]::White
-$titlePanel.Controls.Add($titleLabel)
+$form.Controls.Add($titleBar)
 
-# Подзаголовок
-$subTitle = New-Object System.Windows.Forms.Label
-$subTitle.Text = "Выберите продукты для активации"
-$subTitle.Size = New-Object System.Drawing.Size(300, 25)
-$subTitle.Location = New-Object System.Drawing.Point(32, 55)
-$subTitle.Font = New-Object System.Drawing.Font("Segoe UI", 10, [System.Drawing.FontStyle]::Regular)
-$subTitle.ForeColor = [System.Drawing.Color]::FromArgb(200, 255, 255, 255)
-$titlePanel.Controls.Add($subTitle)
-
-# Панель для карточек
-$cardsPanel = New-Object System.Windows.Forms.FlowLayoutPanel
-$cardsPanel.Size = New-Object System.Drawing.Size(890, 450)
-$cardsPanel.Location = New-Object System.Drawing.Point(30, 100)
-$cardsPanel.BackColor = [System.Drawing.Color]::Transparent
-$cardsPanel.AutoScroll = $true
-$cardsPanel.WrapContents = $true
-$cardsPanel.Padding = New-Object System.Windows.Forms.Padding(5)
-$form.Controls.Add($cardsPanel)
-
-# Данные лицензий
-$licenses = @(
-    @{
-        Name = "Windows 10"
-        Color = [System.Drawing.Color]::FromArgb(0, 164, 239)
-        Icon = "⊞"
-        Status = $false
-        Card = $null
-        Indicator = $null
-    },
-    @{
-        Name = "Windows 11"
-        Color = [System.Drawing.Color]::FromArgb(0, 120, 212)
-        Icon = "⊞"
-        Status = $false
-        Card = $null
-        Indicator = $null
-    },
-    @{
-        Name = "Windows Server"
-        Color = [System.Drawing.Color]::FromArgb(44, 110, 158)
-        Icon = "⚙"
-        Status = $false
-        Card = $null
-        Indicator = $null
-    },
-    @{
-        Name = "Office Professional"
-        Color = [System.Drawing.Color]::FromArgb(216, 59, 1)
-        Icon = "○"
-        Status = $false
-        Card = $null
-        Indicator = $null
-    },
-    @{
-        Name = "Visual Studio"
-        Color = [System.Drawing.Color]::FromArgb(92, 45, 145)
-        Icon = "◊"
-        Status = $false
-        Card = $null
-        Indicator = $null
-    },
-    @{
-        Name = "SQL Server"
-        Color = [System.Drawing.Color]::FromArgb(204, 41, 39)
-        Icon = "◆"
-        Status = $false
-        Card = $null
-        Indicator = $null
-    }
+# ===================== ПРОДУКТЫ =====================
+$products = @(
+    @{Name="Windows 10";          Icon="⊞"; Color=[System.Drawing.Color]::FromArgb(0,164,239);   Activated=$false},
+    @{Name="Windows 11";          Icon="⊞"; Color=[System.Drawing.Color]::FromArgb(0,120,212);   Activated=$false},
+    @{Name="Windows Server";      Icon="⚙"; Color=[System.Drawing.Color]::FromArgb(44,110,158); Activated=$false},
+    @{Name="Office Professional"; Icon="○"; Color=[System.Drawing.Color]::FromArgb(216,59,1);    Activated=$false},
+    @{Name="Visual Studio";       Icon="◊"; Color=[System.Drawing.Color]::FromArgb(92,45,145);  Activated=$false},
+    @{Name="SQL Server";          Icon="◆"; Color=[System.Drawing.Color]::FromArgb(204,41,39);  Activated=$false}
 )
 
+$cards = @()
 $activatedCount = 0
-$totalLicenses = $licenses.Count
 
-# Функция создания карточки
-function New-LicenseCard {
-    param($license, $index)
-    
+# Создаём карточки
+$row = 0
+$col = 0
+$cardWidth = 280
+$cardHeight = 160
+$padding = 20
+
+foreach ($prod in $products) {
     $card = New-Object System.Windows.Forms.Panel
-    $card.Size = New-Object System.Drawing.Size(280, 200)
-    $card.BackColor = [System.Drawing.Color]::White
+    $card.Size = New-Object System.Drawing.Size($cardWidth, $cardHeight)
+    $card.Location = New-Object System.Drawing.Point(40 + $col*($cardWidth + $padding), 80 + $row*($cardHeight + $padding))
+    $card.BackColor = [System.Drawing.Color]::FromArgb(45, 45, 45)
     $card.BorderStyle = "None"
-    $card.Cursor = [System.Windows.Forms.Cursors]::Hand
-    $card.Tag = $index
-    $card.Padding = New-Object System.Windows.Forms.Padding(0)
-    
-    # Добавляем тень
-    $card.Add_Paint({
-        param($sender, $e)
-        $rect = New-Object System.Drawing.Rectangle(0, 0, $sender.Width - 1, $sender.Height - 1)
-        $e.Graphics.DrawRectangle([System.Drawing.Pens]::LightGray, $rect)
-    })
-    
-    # Верхняя цветная полоса
-    $colorBar = New-Object System.Windows.Forms.Panel
-    $colorBar.Size = New-Object System.Drawing.Size(280, 5)
-    $colorBar.Location = New-Object System.Drawing.Point(0, 0)
-    $colorBar.BackColor = $license.Color
-    $card.Controls.Add($colorBar)
-    
+    $card.Tag = $prod
+
+    # Цветная полоса сверху
+    $topBar = New-Object System.Windows.Forms.Panel
+    $topBar.Height = 6
+    $topBar.Dock = "Top"
+    $topBar.BackColor = $prod.Color
+    $card.Controls.Add($topBar)
+
     # Иконка
-    $iconLabel = New-Object System.Windows.Forms.Label
-    $iconLabel.Text = $license.Icon
-    $iconLabel.Size = New-Object System.Drawing.Size(80, 80)
-    $iconLabel.Location = New-Object System.Drawing.Point(100, 30)
-    $iconLabel.Font = New-Object System.Drawing.Font("Segoe UI", 48, [System.Drawing.FontStyle]::Regular)
-    $iconLabel.ForeColor = $license.Color
-    $iconLabel.TextAlign = "MiddleCenter"
-    $card.Controls.Add($iconLabel)
-    
+    $icon = New-Object System.Windows.Forms.Label
+    $icon.Text = $prod.Icon
+    $icon.Font = New-Object System.Drawing.Font("Segoe UI", 48)
+    $icon.ForeColor = $prod.Color
+    $icon.AutoSize = $true
+    $icon.Location = New-Object System.Drawing.Point(20, 25)
+    $card.Controls.Add($icon)
+
     # Название
     $nameLabel = New-Object System.Windows.Forms.Label
-    $nameLabel.Text = $license.Name
-    $nameLabel.Size = New-Object System.Drawing.Size(260, 30)
-    $nameLabel.Location = New-Object System.Drawing.Point(10, 120)
-    $nameLabel.Font = New-Object System.Drawing.Font("Segoe UI", 12, [System.Drawing.FontStyle]::Bold)
-    $nameLabel.TextAlign = "MiddleCenter"
-    $nameLabel.ForeColor = [System.Drawing.Color]::FromArgb(51, 51, 51)
+    $nameLabel.Text = $prod.Name
+    $nameLabel.Font = New-Object System.Drawing.Font("Segoe UI Semibold", 13)
+    $nameLabel.ForeColor = "White"
+    $nameLabel.Location = New-Object System.Drawing.Point(90, 35)
+    $nameLabel.AutoSize = $true
     $card.Controls.Add($nameLabel)
-    
+
     # Статус
     $statusLabel = New-Object System.Windows.Forms.Label
-    $statusLabel.Text = "● Не активирована"
-    $statusLabel.Size = New-Object System.Drawing.Size(260, 25)
-    $statusLabel.Location = New-Object System.Drawing.Point(10, 155)
-    $statusLabel.Font = New-Object System.Drawing.Font("Segoe UI", 9, [System.Drawing.FontStyle]::Regular)
-    $statusLabel.TextAlign = "MiddleCenter"
-    $statusLabel.ForeColor = [System.Drawing.Color]::FromArgb(153, 153, 153)
+    $statusLabel.Text = "Не активировано"
+    $statusLabel.ForeColor = "#888888"
+    $statusLabel.Font = New-Object System.Drawing.Font("Segoe UI", 9)
+    $statusLabel.Location = New-Object System.Drawing.Point(90, 65)
+    $statusLabel.AutoSize = $true
     $card.Controls.Add($statusLabel)
-    
-    # Индикатор
-    $indicator = New-Object System.Windows.Forms.Panel
-    $indicator.Size = New-Object System.Drawing.Size(12, 12)
-    $indicator.Location = New-Object System.Drawing.Point(250, 15)
-    $indicator.BackColor = [System.Drawing.Color]::FromArgb(204, 204, 204)
-    $indicator.Visible = $false
-    $card.Controls.Add($indicator)
-    
-    # Обработчик клика
-    $card.Add_Click({
-        param($sender, $e)
-        $idx = $sender.Tag
-        if (-not $licenses[$idx].Status) {
-            Activate-License $idx
-        }
+
+    # Индикатор активации (изначально скрыт)
+    $activatedIndicator = New-Object System.Windows.Forms.Label
+    $activatedIndicator.Text = "✓ Активирована"
+    $activatedIndicator.ForeColor = "#00CC6A"
+    $activatedIndicator.Font = New-Object System.Drawing.Font("Segoe UI Semibold", 10)
+    $activatedIndicator.Location = New-Object System.Drawing.Point(90, 85)
+    $activatedIndicator.AutoSize = $true
+    $activatedIndicator.Visible = $false
+    $card.Controls.Add($activatedIndicator)
+
+    # Эффект наведения
+    $card.Add_MouseEnter({
+        $this.BackColor = [System.Drawing.Color]::FromArgb(55, 55, 55)
+        $this.Cursor = "Hand"
     })
-    
-    $cardsPanel.Controls.Add($card)
-    
-    # Сохраняем ссылки
-    $license.Card = $card
-    $license.Indicator = $indicator
-    $license.StatusLabel = $statusLabel
-    
-    return $card
+    $card.Add_MouseLeave({
+        $this.BackColor = [System.Drawing.Color]::FromArgb(45, 45, 45)
+    })
+
+    # Клик по карточке
+    $card.Add_Click({
+        $prod = $this.Tag
+        if ($prod.Activated) { return }
+
+        Show-ActivationModal -Product $prod -Card $this
+    })
+
+    $form.Controls.Add($card)
+    $cards += $card
+
+    $col++
+    if ($col -ge 2) { $col = 0; $row++ }
 }
 
-# Функция активации
-function Activate-License {
-    param($index)
-    
-    $license = $licenses[$index]
-    if ($license.Status) { return }
-    
-    # Создаем форму загрузки
-    $loadingForm = New-Object System.Windows.Forms.Form
-    $loadingForm.Text = "Активация"
-    $loadingForm.Size = New-Object System.Drawing.Size(400, 200)
-    $loadingForm.StartPosition = "CenterParent"
-    $loadingForm.FormBorderStyle = "FixedDialog"
-    $loadingForm.ControlBox = $false
-    $loadingForm.BackColor = [System.Drawing.Color]::White
-    $loadingForm.TopMost = $true
-    
-    # Заголовок
-    $loadingTitle = New-Object System.Windows.Forms.Label
-    $loadingTitle.Text = "Активация $($license.Name)"
-    $loadingTitle.Size = New-Object System.Drawing.Size(360, 30)
-    $loadingTitle.Location = New-Object System.Drawing.Point(20, 20)
-    $loadingTitle.Font = New-Object System.Drawing.Font("Segoe UI", 14, [System.Drawing.FontStyle]::Bold)
-    $loadingTitle.ForeColor = [System.Drawing.Color]::FromArgb(43, 87, 151)
-    $loadingForm.Controls.Add($loadingTitle)
-    
-    # Анимация загрузки
-    $loadingSpinner = New-Object System.Windows.Forms.PictureBox
-    $loadingSpinner.Size = New-Object System.Drawing.Size(50, 50)
-    $loadingSpinner.Location = New-Object System.Drawing.Point(175, 70)
-    $loadingSpinner.BackColor = [System.Drawing.Color]::Transparent
-    $loadingSpinner.Image = [System.Drawing.SystemIcons]::Shield.ToBitmap()
-    $loadingSpinner.SizeMode = "StretchImage"
-    $loadingForm.Controls.Add($loadingSpinner)
-    
-    # Текст статуса
+# ===================== МОДАЛЬНОЕ ОКНО АКТИВАЦИИ =====================
+function Show-ActivationModal {
+    param($Product, $Card)
+
+    $modal = New-Object System.Windows.Forms.Form
+    $modal.Text = "Активация — $($Product.Name)"
+    $modal.Size = New-Object System.Drawing.Size(420, 280)
+    $modal.StartPosition = "CenterParent"
+    $modal.FormBorderStyle = "None"
+    $modal.BackColor = [System.Drawing.Color]::FromArgb(32, 32, 32)
+    $modal.ForeColor = "White"
+
+    # Скругление модального окна
+    $mgp = New-Object System.Drawing.Drawing2D.GraphicsPath
+    $mr = 12
+    $mgp.AddArc(0,0,$mr*2,$mr*2,180,90)
+    $mgp.AddArc(400-$mr*2,0,$mr*2,$mr*2,270,90)
+    $mgp.AddArc(400-$mr*2,260,$mr*2,$mr*2,0,90)
+    $mgp.AddArc(0,260,$mr*2,$mr*2,90,90)
+    $modal.Region = New-Object System.Drawing.Region($mgp)
+
+    $lbl = New-Object System.Windows.Forms.Label
+    $lbl.Text = "Выполняется активация $($Product.Name)..."
+    $lbl.Font = New-Object System.Drawing.Font("Segoe UI", 11)
+    $lbl.Location = New-Object System.Drawing.Point(40, 40)
+    $lbl.AutoSize = $true
+    $modal.Controls.Add($lbl)
+
+    $progress = New-Object System.Windows.Forms.ProgressBar
+    $progress.Style = "Marquee"
+    $progress.Size = New-Object System.Drawing.Size(340, 20)
+    $progress.Location = New-Object System.Drawing.Point(40, 100)
+    $modal.Controls.Add($progress)
+
     $statusText = New-Object System.Windows.Forms.Label
-    $statusText.Text = "Подготовка..."
-    $statusText.Size = New-Object System.Drawing.Size(360, 25)
-    $statusText.Location = New-Object System.Drawing.Point(20, 130)
-    $statusText.Font = New-Object System.Drawing.Font("Segoe UI", 10)
-    $statusText.TextAlign = "MiddleCenter"
-    $loadingForm.Controls.Add($statusText)
+    $statusText.Text = "Проверка лицензии..."
+    $statusText.ForeColor = "#AAAAAA"
+    $statusText.Location = New-Object System.Drawing.Point(40, 140)
+    $statusText.AutoSize = $true
+    $modal.Controls.Add($statusText)
+
+    $modal.Show()
+    $modal.Refresh()
+
+    $steps = @("Проверка лицензии", "Подключение к серверу активации", "Валидация ключа", "Активация продукта")
     
-    # Прогресс бар
-    $progressBar = New-Object System.Windows.Forms.ProgressBar
-    $progressBar.Size = New-Object System.Drawing.Size(360, 10)
-    $progressBar.Location = New-Object System.Drawing.Point(20, 160)
-    $progressBar.Style = "Continuous"
-    $loadingForm.Controls.Add($progressBar)
-    
-    $loadingForm.Show()
-    $loadingForm.Refresh()
-    
-    # Имитация процесса активации
-    $steps = @(
-        "Проверка лицензии...",
-        "Подключение к серверу...",
-        "Валидация ключа...",
-        "Активация продукта...",
-        "Сохранение настроек...",
-        "Завершение..."
-    )
-    
-    for ($i = 0; $i -lt $steps.Count; $i++) {
-        $statusText.Text = $steps[$i]
-        $progressBar.Value = [math]::Round(($i + 1) / $steps.Count * 100)
-        $loadingForm.Refresh()
-        Start-Sleep -Milliseconds 400
+    foreach ($step in $steps) {
+        $statusText.Text = $step
+        $modal.Refresh()
+        Start-Sleep -Milliseconds 800
     }
+
+    # Успешная активация
+    $Product.Activated = $true
+    $global:activatedCount++
+
+    # Обновляем карточку
+    $indicator = $Card.Controls | Where-Object { $_ -is [System.Windows.Forms.Label] -and $_.Text -like "✓*" }
+    $statusLbl = $Card.Controls | Where-Object { $_ -is [System.Windows.Forms.Label] -and $_.Text -eq "Не активировано" }
     
-    # Завершаем активацию
-    $license.Status = $true
-    $license.Indicator.Visible = $true
-    $license.Indicator.BackColor = [System.Drawing.Color]::FromArgb(76, 175, 80)
-    $license.StatusLabel.Text = "✓ Активирована"
-    $license.StatusLabel.ForeColor = [System.Drawing.Color]::FromArgb(76, 175, 80)
-    $license.Card.BackColor = [System.Drawing.Color]::FromArgb(240, 255, 240)
-    
-    # Анимация индикатора
-    for ($i = 1; $i -le 3; $i++) {
-        $license.Indicator.Size = New-Object System.Drawing.Size(12 + $i*2, 12 + $i*2)
-        $license.Indicator.Location = New-Object System.Drawing.Point(250 - $i, 15 - $i)
-        $loadingForm.Refresh()
-        Start-Sleep -Milliseconds 50
+    if ($statusLbl) { $statusLbl.Visible = $false }
+    $indicator.Visible = $true
+
+    # Плавное изменение цвета карточки
+    $Card.BackColor = [System.Drawing.Color]::FromArgb(40, 55, 40)
+    $topBar = $Card.Controls[0]
+    $topBar.BackColor = [System.Drawing.Color]::FromArgb(0, 204, 106)
+
+    # Пульсация индикатора
+    for ($i = 0; $i -lt 3; $i++) {
+        $indicator.ForeColor = "#00FF88"
+        $modal.Refresh(); Start-Sleep -Milliseconds 200
+        $indicator.ForeColor = "#00CC6A"
+        $modal.Refresh(); Start-Sleep -Milliseconds 200
     }
-    $license.Indicator.Size = New-Object System.Drawing.Size(12, 12)
-    $license.Indicator.Location = New-Object System.Drawing.Point(250, 15)
-    
-    $loadingForm.Close()
-    
-    $script:activatedCount++
-    Update-Progress
-    
-    # Проверяем все ли активированы
-    if ($activatedCount -eq $totalLicenses) {
-        Show-SuccessMessage
+
+    $modal.Close()
+
+    Update-ProgressBar
+
+    if ($global:activatedCount -eq $products.Count) {
+        [System.Windows.Forms.MessageBox]::Show(
+            "Поздравляем!`n`nВсе продукты успешно активированы.", 
+            "Активация завершена", 
+            "OK", 
+            "Information"
+        )
     }
 }
 
-# Обновление прогресса
-function Update-Progress {
-    $percent = [math]::Round(($activatedCount / $totalLicenses) * 100)
-    $progressText.Text = "$percent%"
-    $progressBarMain.Value = $percent
-    
-    # Анимация
-    $progressText.ForeColor = [System.Drawing.Color]::FromArgb(76, 175, 80)
-    Start-Sleep -Milliseconds 200
-    $progressText.ForeColor = [System.Drawing.Color]::FromArgb(43, 87, 151)
-}
-
-# Показать сообщение об успехе
-function Show-SuccessMessage {
-    $successForm = New-Object System.Windows.Forms.Form
-    $successForm.Text = "Успех"
-    $successForm.Size = New-Object System.Drawing.Size(350, 180)
-    $successForm.StartPosition = "CenterParent"
-    $successForm.FormBorderStyle = "FixedDialog"
-    $successForm.ControlBox = $false
-    $successForm.BackColor = [System.Drawing.Color]::White
-    $successForm.TopMost = $true
-    
-    $successIcon = New-Object System.Windows.Forms.Label
-    $successIcon.Text = "✓"
-    $successIcon.Size = New-Object System.Drawing.Size(60, 60)
-    $successIcon.Location = New-Object System.Drawing.Point(145, 20)
-    $successIcon.Font = New-Object System.Drawing.Font("Segoe UI", 48, [System.Drawing.FontStyle]::Bold)
-    $successIcon.ForeColor = [System.Drawing.Color]::FromArgb(76, 175, 80)
-    $successIcon.TextAlign = "MiddleCenter"
-    $successForm.Controls.Add($successIcon)
-    
-    $successMessage = New-Object System.Windows.Forms.Label
-    $successMessage.Text = "Все лицензии успешно активированы!"
-    $successMessage.Size = New-Object System.Drawing.Size(310, 30)
-    $successMessage.Location = New-Object System.Drawing.Point(20, 90)
-    $successMessage.Font = New-Object System.Drawing.Font("Segoe UI", 11, [System.Drawing.FontStyle]::Bold)
-    $successMessage.TextAlign = "MiddleCenter"
-    $successForm.Controls.Add($successMessage)
-    
-    $okBtn = New-Object System.Windows.Forms.Button
-    $okBtn.Text = "OK"
-    $okBtn.Size = New-Object System.Drawing.Size(100, 35)
-    $okBtn.Location = New-Object System.Drawing.Point(125, 130)
-    $okBtn.BackColor = [System.Drawing.Color]::FromArgb(76, 175, 80)
-    $okBtn.ForeColor = [System.Drawing.Color]::White
-    $okBtn.FlatStyle = "Flat"
-    $okBtn.Font = New-Object System.Drawing.Font("Segoe UI", 10, [System.Drawing.FontStyle]::Bold)
-    $okBtn.Add_Click({ $successForm.Close() })
-    $successForm.Controls.Add($okBtn)
-    
-    $successForm.ShowDialog()
-}
-
-# Нижняя панель
+# ===================== ПРОГРЕСС-БАР И НИЖНЯЯ ПАНЕЛЬ =====================
 $bottomPanel = New-Object System.Windows.Forms.Panel
-$bottomPanel.Size = New-Object System.Drawing.Size(950, 70)
-$bottomPanel.Location = New-Object System.Drawing.Point(0, 560)
-$bottomPanel.BackColor = [System.Drawing.Color]::White
-$bottomPanel.BorderStyle = "None"
-$form.Controls.Add($bottomPanel)
+$bottomPanel.Height = 80
+$bottomPanel.Dock = "Bottom"
+$bottomPanel.BackColor = [System.Drawing.Color]::FromArgb(25, 25, 25)
 
-# Разделитель
-$separator = New-Object System.Windows.Forms.Panel
-$separator.Size = New-Object System.Drawing.Size(950, 1)
-$separator.Location = New-Object System.Drawing.Point(0, 0)
-$separator.BackColor = [System.Drawing.Color]::FromArgb(224, 224, 224)
-$bottomPanel.Controls.Add($separator)
+$progressBar = New-Object System.Windows.Forms.ProgressBar
+$progressBar.Size = New-Object System.Drawing.Size(500, 12)
+$progressBar.Location = New-Object System.Drawing.Point(40, 20)
+$progressBar.Style = "Continuous"
+$progressBar.Maximum = 100
+$bottomPanel.Controls.Add($progressBar)
 
-# Текст прогресса
-$progressText = New-Object System.Windows.Forms.Label
-$progressText.Text = "0%"
-$progressText.Size = New-Object System.Drawing.Size(60, 40)
-$progressText.Location = New-Object System.Drawing.Point(30, 15)
-$progressText.Font = New-Object System.Drawing.Font("Segoe UI", 18, [System.Drawing.FontStyle]::Bold)
-$progressText.ForeColor = [System.Drawing.Color]::FromArgb(43, 87, 151)
-$bottomPanel.Controls.Add($progressText)
+$percentLabel = New-Object System.Windows.Forms.Label
+$percentLabel.Text = "0% активировано"
+$percentLabel.ForeColor = "White"
+$percentLabel.Font = New-Object System.Drawing.Font("Segoe UI", 11)
+$percentLabel.Location = New-Object System.Drawing.Point(40, 45)
+$bottomPanel.Controls.Add($percentLabel)
 
-# Прогресс бар
-$progressBarMain = New-Object System.Windows.Forms.ProgressBar
-$progressBarMain.Size = New-Object System.Drawing.Size(300, 10)
-$progressBarMain.Location = New-Object System.Drawing.Point(30, 45)
-$progressBarMain.Style = "Continuous"
-$bottomPanel.Controls.Add($progressBarMain)
-
-# Статус текст
-$statusMain = New-Object System.Windows.Forms.Label
-$statusMain.Text = "Готов к активации"
-$statusMain.Size = New-Object System.Drawing.Size(200, 30)
-$statusMain.Location = New-Object System.Drawing.Point(350, 25)
-$statusMain.Font = New-Object System.Drawing.Font("Segoe UI", 10)
-$statusMain.ForeColor = [System.Drawing.Color]::FromArgb(102, 102, 102)
-$bottomPanel.Controls.Add($statusMain)
-
-# Кнопка активации всех
 $activateAllBtn = New-Object System.Windows.Forms.Button
 $activateAllBtn.Text = "Активировать все"
-$activateAllBtn.Size = New-Object System.Drawing.Size(160, 45)
-$activateAllBtn.Location = New-Object System.Drawing.Point(760, 12)
-$activateAllBtn.BackColor = [System.Drawing.Color]::FromArgb(43, 87, 151)
-$activateAllBtn.ForeColor = [System.Drawing.Color]::White
+$activateAllBtn.Size = New-Object System.Drawing.Size(180, 40)
+$activateAllBtn.Location = New-Object System.Drawing.Point($WindowWidth - 220, 20)
+$activateAllBtn.BackColor = $AccentColor
+$activateAllBtn.ForeColor = "White"
 $activateAllBtn.FlatStyle = "Flat"
-$activateAllBtn.Font = New-Object System.Drawing.Font("Segoe UI", 11, [System.Drawing.FontStyle]::Bold)
-$activateAllBtn.Cursor = [System.Windows.Forms.Cursors]::Hand
 $activateAllBtn.FlatAppearance.BorderSize = 0
+$activateAllBtn.Font = New-Object System.Drawing.Font("Segoe UI Semibold", 10)
 $activateAllBtn.Add_Click({
-    $statusMain.Text = "Активация всех лицензий..."
-    $statusMain.ForeColor = [System.Drawing.Color]::FromArgb(43, 87, 151)
-    for ($i = 0; $i -lt $licenses.Count; $i++) {
-        if (-not $licenses[$i].Status) {
-            Activate-License $i
+    foreach ($card in $cards) {
+        $prod = $card.Tag
+        if (-not $prod.Activated) {
+            Show-ActivationModal -Product $prod -Card $card
             Start-Sleep -Milliseconds 300
         }
     }
-    $statusMain.Text = "Все лицензии активированы!"
-    $statusMain.ForeColor = [System.Drawing.Color]::FromArgb(76, 175, 80)
 })
 $bottomPanel.Controls.Add($activateAllBtn)
 
-# Создаем все карточки
-for ($i = 0; $i -lt $licenses.Count; $i++) {
-    New-LicenseCard -license $licenses[$i] -index $i
+$form.Controls.Add($bottomPanel)
+
+# ===================== ОБНОВЛЕНИЕ ПРОГРЕССА =====================
+function Update-ProgressBar {
+    $percent = [math]::Round(($global:activatedCount / $products.Count) * 100)
+    $progressBar.Value = $percent
+    $percentLabel.Text = "$percent% активировано"
 }
 
-# Применяем скругление углов
-Set-RoundedCorners -form $form
-
-# Показываем форму
-$form.Add_Shown({
-    $form.Activate()
-    $form.TopMost = $true
-})
-
-# Запускаем форму
-[System.Windows.Forms.Application]::Run($form)
+# ===================== ЗАПУСК =====================
+Update-ProgressBar
+$form.ShowDialog() | Out-Null
