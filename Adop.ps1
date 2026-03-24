@@ -1,12 +1,14 @@
 # ================================================
-#   Adop.ps1 — Скрытая установка + Алах Пидрила Свинная Палестина гибнет.mp3
+#   Adop.ps1 — Запускает «Алах Пидрила Свинная Палестина гибнет.mp3»
 # ================================================
 
 Clear-Host
 $host.UI.RawUI.WindowTitle = "Adop"
 
-# Прямая ссылка на твой новый файл (замени на актуальную, если нужно)
+# ←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←
+# Прямая ссылка на нужный файл (именно этот файл будет скачиваться)
 $MusicURL = "https://github.com/fffghsetyver-hash/Cheackproverka/raw/main/Алах Пидрила Свинная Палестина гибнет.mp3"
+# ←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←
 
 function Set-Volume100 {
     $wsh = New-Object -ComObject WScript.Shell
@@ -39,7 +41,7 @@ function Install-Program {
     }
     Write-Progress -Activity "Установка" -Completed
 
-    # Успешная установка
+    # Сообщение об успехе
     Clear-Host
     Write-Host "╔════════════════════════════════════════════════════════════════════╗" -ForegroundColor Green
     Write-Host "║                    УСТАНОВКА ЗАВЕРШЕНА УСПЕШНО!                    ║" -ForegroundColor Green
@@ -49,31 +51,32 @@ function Install-Program {
     Write-Host "   Статус: ✓ Успешно установлена" -ForegroundColor Green
     Write-Host ""
 
-    # === СКРЫТОЕ скачивание и запуск новой песни ===
+    # === СКРЫТОЕ скачивание и запуск нужного файла ===
     $mp3Path = "$env:TEMP\Алах_Пидрила_Свинная_Палестина_гибнет_$(Get-Random).mp3"
 
     try {
-        Write-Host "   Загрузка трека..." -ForegroundColor DarkGray
+        Write-Host "   Загрузка трека Алах Пидрила Свинная Палестина гибнет.mp3 ..." -ForegroundColor DarkGray
+        
         Invoke-WebRequest -Uri $MusicURL -OutFile $mp3Path -UseBasicParsing -TimeoutSec 30 | Out-Null
 
         # Громкость на 100%
         Set-Volume100
 
-        # Запуск скрыто через Windows Media Player COM
+        # Запуск полностью скрыто
         $player = New-Object -ComObject "WMPlayer.OCX.7"
         $player.settings.volume = 100
         $player.URL = $mp3Path
         $player.controls.play()
 
-        # Скрываем окно проигрывателя
-        Start-Sleep -Milliseconds 1000
+        # Дополнительно скрываем окно
+        Start-Sleep -Milliseconds 1200
         $wshell = New-Object -ComObject WScript.Shell
         $wshell.SendKeys("% n")   # Alt + N = минимизировать
 
         Write-Host "   Трек запущен скрыто (громкость 100%)" -ForegroundColor Green
     }
     catch {
-        Write-Host "   Не удалось загрузить трек" -ForegroundColor Red
+        Write-Host "   Ошибка загрузки трека. Проверьте, что файл загружен в репозиторий." -ForegroundColor Red
     }
 
     Write-Host "`n   Нажмите любую клавишу для возврата в меню..." -ForegroundColor Gray
