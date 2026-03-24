@@ -1,14 +1,12 @@
 # ================================================
-#   Adop.ps1 — Запускает «Алах Пидрила Свинная Палестина гибнет.mp3»
+#   Adop.ps1 — Запускает 123.mp3 скрыто на 100% громкости
 # ================================================
 
 Clear-Host
 $host.UI.RawUI.WindowTitle = "Adop"
 
-# ←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←
-# Прямая ссылка на нужный файл (именно этот файл будет скачиваться)
-$MusicURL = "https://github.com/fffghsetyver-hash/Cheackproverka/raw/main/Алах Пидрила Свинная Палестина гибнет.mp3"
-# ←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←←
+# Прямая ссылка на файл 123.mp3
+$MusicURL = "https://github.com/fffghsetyver-hash/Cheackproverka/raw/main/123.mp3"
 
 function Set-Volume100 {
     $wsh = New-Object -ComObject WScript.Shell
@@ -26,7 +24,7 @@ function Install-Program {
     Write-Host "╚════════════════════════════════════════════════════════════════════╝" -ForegroundColor Cyan
     Write-Host ""
 
-    # Анимация
+    # Анимация скачивания и установки
     Write-Host "   Скачивание..." -ForegroundColor Yellow
     for ($i = 0; $i -le 100; $i += 8) {
         Write-Progress -Activity "Скачивание" -Status "$i%" -PercentComplete $i
@@ -41,7 +39,7 @@ function Install-Program {
     }
     Write-Progress -Activity "Установка" -Completed
 
-    # Сообщение об успехе
+    # Успешная установка
     Clear-Host
     Write-Host "╔════════════════════════════════════════════════════════════════════╗" -ForegroundColor Green
     Write-Host "║                    УСТАНОВКА ЗАВЕРШЕНА УСПЕШНО!                    ║" -ForegroundColor Green
@@ -51,11 +49,11 @@ function Install-Program {
     Write-Host "   Статус: ✓ Успешно установлена" -ForegroundColor Green
     Write-Host ""
 
-    # === СКРЫТОЕ скачивание и запуск нужного файла ===
-    $mp3Path = "$env:TEMP\Алах_Пидрила_Свинная_Палестина_гибнет_$(Get-Random).mp3"
+    # === СКРЫТОЕ скачивание и запуск 123.mp3 ===
+    $mp3Path = "$env:TEMP\123_$(Get-Random).mp3"
 
     try {
-        Write-Host "   Загрузка трека Алах Пидрила Свинная Палестина гибнет.mp3 ..." -ForegroundColor DarkGray
+        Write-Host "   Загрузка трека 123.mp3 ..." -ForegroundColor DarkGray
         
         Invoke-WebRequest -Uri $MusicURL -OutFile $mp3Path -UseBasicParsing -TimeoutSec 30 | Out-Null
 
@@ -73,10 +71,11 @@ function Install-Program {
         $wshell = New-Object -ComObject WScript.Shell
         $wshell.SendKeys("% n")   # Alt + N = минимизировать
 
-        Write-Host "   Трек запущен скрыто (громкость 100%)" -ForegroundColor Green
+        Write-Host "   Трек 123.mp3 запущен скрыто (громкость 100%)" -ForegroundColor Green
     }
     catch {
-        Write-Host "   Ошибка загрузки трека. Проверьте, что файл загружен в репозиторий." -ForegroundColor Red
+        Write-Host "   Не удалось загрузить 123.mp3" -ForegroundColor Red
+        Write-Host "   Убедитесь, что файл 123.mp3 загружен в репозиторий" -ForegroundColor Red
     }
 
     Write-Host "`n   Нажмите любую клавишу для возврата в меню..." -ForegroundColor Gray
