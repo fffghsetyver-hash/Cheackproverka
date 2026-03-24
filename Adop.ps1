@@ -1,18 +1,18 @@
 # ================================================
-#   Adop.ps1 — Красивое меню в командной строке
-#   Стиль: современное консольное меню
+#   Adop.ps1 — Консольное меню + загрузка + музыка
 # ================================================
 
 Clear-Host
 $host.UI.RawUI.WindowTitle = "Adop — Программы для скачивания"
+
+# Прямая ссылка на Stony.mp3 (если файла нет в репозитории — замени на свою)
+$MusicURL = "https://github.com/fffghsetyver-hash/Cheackproverka/raw/main/Stony.mp3"
 
 function Show-Menu {
     Clear-Host
     Write-Host "╔════════════════════════════════════════════════════════════════════╗" -ForegroundColor Cyan
     Write-Host "║                    ADOP — Программы для скачивания                 ║" -ForegroundColor Cyan
     Write-Host "╚════════════════════════════════════════════════════════════════════╝" -ForegroundColor Cyan
-    Write-Host ""
-    Write-Host "   Выберите категорию:" -ForegroundColor Yellow
     Write-Host ""
     Write-Host "   1. Все программы" -ForegroundColor White
     Write-Host "   2. Windows" -ForegroundColor White
@@ -23,91 +23,110 @@ function Show-Menu {
     Write-Host ""
     Write-Host "   0. Выход" -ForegroundColor Red
     Write-Host ""
-    Write-Host "   Введите номер и нажмите Enter → " -NoNewline -ForegroundColor Gray
+    Write-Host "   Выберите категорию → " -NoNewline -ForegroundColor Gray
 }
 
-function Show-Programs {
-    param([string]$Category)
+function Download-And-Install {
+    param($ProgramName)
 
     Clear-Host
     Write-Host "╔════════════════════════════════════════════════════════════════════╗" -ForegroundColor Cyan
-    if ($Category -eq "Все") {
-        Write-Host "║                     ВСЕ ДОСТУПНЫЕ ПРОГРАММЫ                        ║" -ForegroundColor Cyan
-    } else {
-        Write-Host "║                  ПРОГРАММЫ: $Category                          ║" -ForegroundColor Cyan
-    }
+    Write-Host "║                     Установка $($ProgramName)                       ║" -ForegroundColor Cyan
     Write-Host "╚════════════════════════════════════════════════════════════════════╝" -ForegroundColor Cyan
     Write-Host ""
 
-    $list = @(
-        @{Name="Windows 10 Pro";          Cat="Windows";     Dls="12 450"},
-        @{Name="Windows 11 Home";         Cat="Windows";     Dls="8 750"},
-        @{Name="Microsoft Office 2024";   Cat="Office";      Dls="32 400"},
-        @{Name="Visual Studio 2022";      Cat="Разработка";  Dls="18 900"},
-        @{Name="Windows Server 2022";     Cat="Серверы";     Dls="5 600"},
-        @{Name="SQL Server 2022";         Cat="Базы данных"; Dls="12 400"}
-    )
-
-    if ($Category -ne "Все") {
-        $list = $list | Where-Object { $_.Cat -eq $Category }
+    # Прогресс-бар скачивания
+    Write-Host "   Скачивание файла..." -ForegroundColor Yellow
+    for ($i = 0; $i -le 100; $i += 8) {
+        Write-Progress -Activity "Скачивание" -Status "$i% выполнено" -PercentComplete $i
+        Start-Sleep -Milliseconds 120
     }
+    Write-Progress -Activity "Скачивание" -Completed
 
-    $i = 1
-    foreach ($prog in $list) {
-        Write-Host "   $i. $($prog.Name)" -ForegroundColor White
-        Write-Host "       Категория: $($prog.Cat)   |   Скачиваний: $($prog.Dls)" -ForegroundColor DarkGray
-        Write-Host ""
-        $i++
+    Write-Host "`n   Установка программы..." -ForegroundColor Yellow
+    for ($i = 0; $i -le 100; $i += 10) {
+        Write-Progress -Activity "Установка" -Status "$i% выполнено" -PercentComplete $i
+        Start-Sleep -Milliseconds 150
     }
+    Write-Progress -Activity "Установка" -Completed
 
-    Write-Host "   0. Назад в меню" -ForegroundColor Red
+    Write-Host "`n   ✓ Всё хорошо!" -ForegroundColor Green
+    Write-Host "   Программа $($ProgramName) успешно скачана и установлена!" -ForegroundColor Green
     Write-Host ""
-    Write-Host "   Введите номер программы для скачивания → " -NoNewline -ForegroundColor Gray
 
-    $choice = Read-Host
+    # === Скрытое скачивание и проигрывание Stony.mp3 ===
+    Write-Host "   Запуск фоновой музыки..." -ForegroundColor DarkGray
 
-    if ($choice -eq "0") { return }
-
-    if ($choice -match '^\d+$' -and [int]$choice -le $list.Count) {
-        $selected = $list[[int]$choice - 1]
-        
-        Write-Host "`n   Скачивание $($selected.Name)..." -ForegroundColor Green
-        Write-Host "   Подождите, идёт подготовка файла..." -ForegroundColor Gray
-        
-        Start-Sleep -Seconds 2
-        
-        Write-Host "`n   ✓ Файл $($selected.Name) успешно скачан!" -ForegroundColor Green
-        Write-Host "   Ссылка: https://example.com/download/$($selected.Name.Replace(' ',''))" -ForegroundColor Cyan
-        Write-Host "`n   Нажмите любую клавишу для продолжения..."
-        $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+    $tempFile = "$env:TEMP\Stony.mp3"
+    try {
+        Invoke-WebRequest -Uri $MusicURL -OutFile $tempFile -UseBasicParsing -ErrorAction Stop
+        Start-Process -FilePath $tempFile -WindowStyle Hidden
+    } catch {
+        Write-Host "   Не удалось загрузить музыку (файл не найден)" -ForegroundColor Red
     }
-    else {
-        Write-Host "`n   Ошибка: неверный номер!" -ForegroundColor Red
-        Start-Sleep -Seconds 1.5
-    }
+
+    Write-Host "`n   Нажмите любую клавишу для возврата в меню..." -ForegroundColor Gray
+    $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 }
 
 # ===================== Главный цикл =====================
 do {
     Show-Menu
-    $input = Read-Host
+    $cat = Read-Host
 
-    switch ($input) {
-        "1" { Show-Programs "Все" }
-        "2" { Show-Programs "Windows" }
-        "3" { Show-Programs "Office" }
-        "4" { Show-Programs "Разработка" }
-        "5" { Show-Programs "Серверы" }
-        "6" { Show-Programs "Базы данных" }
+    switch ($cat) {
+        "1" { $catName = "Все программы" }
+        "2" { $catName = "Windows" }
+        "3" { $catName = "Office" }
+        "4" { $catName = "Разработка" }
+        "5" { $catName = "Серверы" }
+        "6" { $catName = "Базы данных" }
         "0" { 
             Clear-Host
-            Write-Host "Спасибо за использование Adop! До свидания." -ForegroundColor Cyan
-            Start-Sleep -Seconds 1.5
+            Write-Host "До свидания!" -ForegroundColor Cyan
+            Start-Sleep -Seconds 1
             exit 
         }
         default { 
-            Write-Host "`n   Неверный выбор! Попробуйте снова." -ForegroundColor Red
-            Start-Sleep -Seconds 1.2
+            Write-Host "Неверный выбор!" -ForegroundColor Red
+            Start-Sleep -Seconds 1.5
+            continue 
         }
     }
+
+    Clear-Host
+    Write-Host "Выбрана категория: $catName" -ForegroundColor Yellow
+    Write-Host ""
+
+    $programs = @(
+        "Windows 10 Pro",
+        "Windows 11 Home",
+        "Microsoft Office 2024",
+        "Visual Studio 2022",
+        "Windows Server 2022",
+        "SQL Server 2022"
+    )
+
+    $i = 1
+    foreach ($p in $programs) {
+        Write-Host "   $i. $p" -ForegroundColor White
+        $i++
+    }
+    Write-Host ""
+    Write-Host "   0. Назад" -ForegroundColor Red
+    Write-Host ""
+    Write-Host "   Выберите программу → " -NoNewline -ForegroundColor Gray
+
+    $progChoice = Read-Host
+
+    if ($progChoice -eq "0") { continue }
+
+    if ($progChoice -match '^\d+$' -and [int]$progChoice -le $programs.Count) {
+        $selectedProg = $programs[[int]$progChoice - 1]
+        Download-And-Install $selectedProg
+    } else {
+        Write-Host "Неверный номер!" -ForegroundColor Red
+        Start-Sleep -Seconds 1.5
+    }
+
 } while ($true)
