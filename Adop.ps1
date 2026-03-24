@@ -1,9 +1,9 @@
 # ================================================
-#   Adop.ps1 — Версия с отображением ошибки (не закрывается)
+#   Adop.ps1 — Показывает куда скачивает 123.mp3
 # ================================================
 
 Clear-Host
-$host.UI.RawUI.WindowTitle = "Adop - Отладка"
+$host.UI.RawUI.WindowTitle = "Adop"
 
 $MusicURL = "https://github.com/fffghsetyver-hash/Cheackproverka/raw/main/123.mp3"
 
@@ -46,30 +46,28 @@ function Install-Program {
     Write-Host "   Статус: ✓ Успешно установлена" -ForegroundColor Green
     Write-Host ""
 
-    # === Попытка запуска 123.mp3 ===
     $mp3Path = "$env:TEMP\123_$(Get-Random).mp3"
 
     try {
         Write-Host "   Загрузка 123.mp3 ..." -ForegroundColor Yellow
         Invoke-WebRequest -Uri $MusicURL -OutFile $mp3Path -UseBasicParsing -TimeoutSec 30 | Out-Null
-        Write-Host "   Файл успешно скачан" -ForegroundColor Green
+        
+        Write-Host "   Файл успешно скачан в папку:" -ForegroundColor Green
+        Write-Host "   $mp3Path" -ForegroundColor White
 
         Set-Volume100
 
-        Write-Host "   Запуск 123.mp3 ..." -ForegroundColor Yellow
+        Write-Host "   Запуск файла..." -ForegroundColor Yellow
         Start-Process -FilePath $mp3Path -WindowStyle Hidden
 
-        Write-Host "   123.mp3 запущен скрыто" -ForegroundColor Green
+        Write-Host "   123.mp3 запущен скрыто на 100% громкости" -ForegroundColor Green
     }
     catch {
-        Write-Host "`n   ОШИБКА:" -ForegroundColor Red
+        Write-Host "`n   ОШИБКА при скачивании или запуске:" -ForegroundColor Red
         Write-Host "   $($_.Exception.Message)" -ForegroundColor Red
-        Write-Host "`n   Полная информация об ошибке:" -ForegroundColor Red
-        Write-Host $_.Exception | Format-List -Force
     }
 
-    Write-Host "`n`n   ==================== КОНЕЦ ====================" -ForegroundColor White
-    Write-Host "   Нажмите любую клавишу, чтобы закрыть окно..." -ForegroundColor Gray
+    Write-Host "`n`n   Нажмите любую клавишу, чтобы закрыть это окно..." -ForegroundColor Gray
     $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 }
 
