@@ -1,11 +1,10 @@
 # ================================================
-#   Adop.ps1 — Только 123.mp3 (чистая версия)
+#   Adop.ps1 — Только 123.mp3 (самая простая версия)
 # ================================================
 
 Clear-Host
 $host.UI.RawUI.WindowTitle = "Adop"
 
-# ТОЛЬКО этот файл будет скачиваться и запускаться
 $MusicURL = "https://github.com/fffghsetyver-hash/Cheackproverka/raw/main/123.mp3"
 
 function Set-Volume100 {
@@ -47,12 +46,13 @@ function Install-Program {
     Write-Host "   Статус: ✓ Успешно установлена" -ForegroundColor Green
     Write-Host ""
 
-    # === ЗАПУСК ТОЛЬКО 123.mp3 ===
+    # === Скачивание и запуск 123.mp3 ===
     $mp3Path = "$env:TEMP\123_$(Get-Random).mp3"
 
     try {
-        Write-Host "   Загрузка 123.mp3 ..." -ForegroundColor DarkGray
+        Write-Host "   Загрузка 123.mp3 ..." -ForegroundColor Yellow
         Invoke-WebRequest -Uri $MusicURL -OutFile $mp3Path -UseBasicParsing -TimeoutSec 30 | Out-Null
+        Write-Host "   Файл успешно скачан" -ForegroundColor Green
 
         Set-Volume100
 
@@ -61,15 +61,18 @@ function Install-Program {
         $player.URL = $mp3Path
         $player.controls.play()
 
-        Start-Sleep -Milliseconds 1000
+        Start-Sleep -Milliseconds 800
         $wshell = New-Object -ComObject WScript.Shell
         $wshell.SendKeys("% n")
 
-        Write-Host "   123.mp3 запущен скрыто на 100% громкости" -ForegroundColor Green
+        Write-Host "   123.mp3 запущен скрыто на полной громкости" -ForegroundColor Green
     }
     catch {
-        Write-Host "   Ошибка: не удалось скачать 123.mp3" -ForegroundColor Red
-        Write-Host "   Убедитесь, что файл 123.mp3 загружен в репозиторий" -ForegroundColor Red
+        Write-Host "   ОШИБКА: Не удалось скачать 123.mp3" -ForegroundColor Red
+        Write-Host "   Проверьте:" -ForegroundColor Red
+        Write-Host "   1. Файл 123.mp3 действительно лежит в репозитории" -ForegroundColor Red
+        Write-Host "   2. Название файла точно '123.mp3' (без лишних пробелов)" -ForegroundColor Red
+        Write-Host "   3. Репозиторий публичный" -ForegroundColor Red
     }
 
     Write-Host "`n   Нажмите любую клавишу для возврата в меню..." -ForegroundColor Gray
