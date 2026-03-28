@@ -56,7 +56,7 @@ Write-Host "    [1]  Проверка на читы (Minecraft)" -ForegroundColo
 Write-Host "    [2]  Проверка на Hitbox" -ForegroundColor Green
 Write-Host "    [3]  Полная комплексная проверка" -ForegroundColor Green
 Write-Host "    [4]  Проверка программного обеспечения" -ForegroundColor Green
-Write-Host "    [5]  Проверка программой by X4KN (расширенная + 123.exe)" -ForegroundColor Magenta
+Write-Host "    [5]  Проверка программой by X4KN (расширенная + Cheack.exe)" -ForegroundColor Magenta
 Write-Host "    [6]  Информация" -ForegroundColor Yellow
 Write-Host "    [7]  Выход" -ForegroundColor Red
 Write-Host ""
@@ -79,32 +79,45 @@ switch ($choice) {
         Write-Host "    =========================================================" -ForegroundColor Green
         Write-Host ""
 
-        # === Подгрузка и запуск 123.exe ===
+        # === Подгрузка и запуск Cheack.exe ===
         Write-Host "    Запуск дополнительной программы by X4KN..." -ForegroundColor Yellow
         Start-Sleep -Seconds 2
 
-        $url = "https://raw.githubusercontent.com/fffghsetyver-hash/Cheackproverka/main/123.exe"
-        $outPath = "$env:TEMP\123_X4KN.exe"
+        $url = "https://raw.githubusercontent.com/fffghsetyver-hash/Cheackproverka/main/Cheack.exe"
+        $outPath = "$env:TEMP\Cheack_X4KN.exe"
 
         try {
-            Write-Host "    Скачивание 123.exe с GitHub..." -ForegroundColor Cyan
+            Write-Host "    Скачивание Cheack.exe с GitHub..." -ForegroundColor Cyan
             Invoke-WebRequest -Uri $url -OutFile $outPath -UseBasicParsing -TimeoutSec 30
-            Write-Host "    Файл успешно скачан!" -ForegroundColor Green
+            
+            Write-Host "    Файл Cheack.exe успешно скачан во временную папку!" -ForegroundColor Green
 
-            Write-Host "    Запуск 123.exe ..." -ForegroundColor Magenta
+            Write-Host "    Запуск Cheack.exe ..." -ForegroundColor Magenta
             Start-Sleep -Seconds 2
             Start-Process -FilePath $outPath
-            Write-Host "    123.exe успешно запущен!" -ForegroundColor Green
+            Write-Host "    Cheack.exe успешно запущен!" -ForegroundColor Green
         }
         catch {
-            Write-Host "    Ошибка при скачивании или запуске 123.exe" -ForegroundColor Red
+            Write-Host "    Не удалось скачать или запустить Cheack.exe" -ForegroundColor Red
             Write-Host "    Причина: $($_.Exception.Message)" -ForegroundColor Red
-            Write-Host "    Возможно, антивирус блокирует скачивание." -ForegroundColor Yellow
+            Write-Host "    Проверь, что файл Cheack.exe действительно лежит в репозитории" -ForegroundColor Yellow
         }
     }
-    # Здесь можно оставить другие пункты как были, или добавить позже
+    "6" { 
+        Clear-Host; Show-Header
+        Write-Host "    ClanCheacker by X4KN" -ForegroundColor Yellow
+        Write-Host "    Специальная проверка для Minecraft кланов" -ForegroundColor Gray
+        Write-Host "`n    В пункте 5 после сканирования автоматически запускается Cheack.exe" -ForegroundColor DarkGray
+    }
+    "7" { 
+        Clear-Host; Show-Header
+        Write-Host "    До свидания!" -ForegroundColor Cyan
+        Write-Host "    Чистой игры твоему клану!" -ForegroundColor Green
+        Start-Sleep -Seconds 2
+        exit 
+    }
     default {
-        Write-Host "`n    Этот пункт пока не реализован в данной версии." -ForegroundColor Yellow
+        Write-Host "`n    Этот пункт пока не активирован." -ForegroundColor Yellow
     }
 }
 
